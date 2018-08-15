@@ -1,5 +1,6 @@
 package com.frontEnd.controller;
 
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -11,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.frontEnd.dao.RoleDao;
-import com.frontEnd.dao.UserDao;
+import com.frontEnd.domain.PrimaryAccount;
+import com.frontEnd.domain.SavingsAccount;
 import com.frontEnd.domain.User;
 import com.frontEnd.domain.security.UserRole;
 import com.frontEnd.service.UserService;
@@ -21,9 +23,6 @@ public class HomeController {
 	
 	@Autowired
 	private UserService userService;
-	
-	@Autowired
-	private UserDao userDao;
 	
 	@Autowired
 	private RoleDao roleDao;
@@ -47,11 +46,11 @@ public class HomeController {
 	
 	@RequestMapping(value = "/signup", method = RequestMethod.POST)
 	public String signupPost(@ModelAttribute("user") User user, Model model) {
-		if (userService.checkUserExists(userDao, user.getUsername(), user.getEmail())) {
-			if (userService.checkEmailExists(userDao, user.getEmail())) {
+		if (userService.checkUserExists(user.getUsername(), user.getEmail())) {
+			if (userService.checkEmailExists(user.getEmail())) {
 				model.addAttribute("emailExists",true);
 			}
-			if (userService.checkUsernameExists(userDao, user.getUsername())) {
+			if (userService.checkUsernameExists(user.getUsername())) {
 				model.addAttribute("usernameExists",true);
 			}
 			
@@ -59,10 +58,22 @@ public class HomeController {
 		} else {
 			Set<UserRole> userRoles = new HashSet<>();
 			userRoles.add(new UserRole(user,roleDao.findByName("ROLE_USER")));
-			userService.create(user,userRoles);
+			userService.createUser(user,userRoles);
 					
 			return "redirect:/";
 		}
+	}
+	
+	@RequestMapping("/frontEnd") 
+	public String frontEnd(Principal principal, Model model) {
+		User user = userService.findByUsername(principal.getName());
+		PrimaryAccount primaryAccount = user.getPrimaryAccount();
+		SavingsAccount savingsAccount = user.getSavingsAccount();
+		
+		model.addAttribute("primaryAccount", primaryAccount);
+		model.addAttribute("savingsAccount",savingsAccount);
+		return "frontEnd";
+		
 	}
 
 }

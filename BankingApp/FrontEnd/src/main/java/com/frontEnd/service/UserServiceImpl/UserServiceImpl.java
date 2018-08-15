@@ -38,22 +38,22 @@ public class UserServiceImpl implements UserService {
     private AccountService accountService;
 	
 	@Override
-	public final void save(User user) {
-		userDao.save(user);
+	public User saveUser(User user) {
+		return userDao.save(user);
 	}
 	
 	@Override
-	public final User findByUsername(UserDao userDao, String username) {
+	public User findByUsername(String username) {
 		return userDao.findByUsername(username);
 	}
 	
 	@Override
-	public final User findByEmail(UserDao userDao, String email) {
+	public User findByEmail(String email) {
 		return userDao.findByEmail(email);
 	}
 
 	@Override
-	public User create(User user, Set<UserRole> userRoles) {
+	public User createUser(User user, Set<UserRole> userRoles) {
 		User localUser = userDao.findByUsername(user.getUsername());
 
 		if (localUser != null) {
@@ -78,19 +78,21 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public final boolean checkUserExists(UserDao userDao, String username, String email) {
-		return checkUsernameExists(userDao,username) || checkEmailExists(userDao, email);
+	public boolean checkUserExists(String username, String email) {
+		return checkUsernameExists(username) || checkEmailExists(email);
 	}
 	
 	@Override
-	public final boolean checkUsernameExists(UserDao userDao, String username) {
-		return (null != findByUsername(userDao, username));
+	public boolean checkUsernameExists(String username) {
+		return (null != findByUsername(username));
 	}
 	
 	@Override
-	public final boolean checkEmailExists(UserDao userDao, String email) {
-		return (null != findByEmail(userDao, email));
+	public boolean checkEmailExists(String email) {
+		return (null != findByEmail( email));
 	}
+
+	
 
 	
 	
